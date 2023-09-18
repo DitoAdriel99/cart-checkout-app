@@ -22,6 +22,8 @@ type ProductContract interface {
 	AddToCart(payload entities.CartsPayload, email string) error
 	GetCart(email string) ([]entities.Product, error)
 	DeleteCart(email string, products_id []uuid.UUID) error
+	Checkout(email string, payload []entities.CheckoutNeed) error
+	GetCartDetail(cartID uuid.UUID) (*entities.Product, error)
 }
 
 func NewProductRepositories() ProductContract {

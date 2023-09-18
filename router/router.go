@@ -50,6 +50,7 @@ func New() http.Handler {
 	userRoutes.HandleFunc("/cart/items", controllerProduct.AddToCart).Methods("POST")
 	userRoutes.HandleFunc("/cart/items", controllerProduct.GetCart).Methods("GET")
 	userRoutes.HandleFunc("/cart/items", controllerProduct.DeleteCart).Methods("DELETE")
+	userRoutes.HandleFunc("/cart/items/checkout", controllerProduct.Checkout).Methods("POST")
 
 	return router
 }

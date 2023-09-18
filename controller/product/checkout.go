@@ -7,17 +7,18 @@ import (
 	"net/http"
 )
 
-func (c *_ControllerProduct) Create(w http.ResponseWriter, r *http.Request) {
+func (c *_ControllerProduct) Checkout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var (
-		payload     entities.Product
+		payload     entities.CheckoutPayload
 		errResponse = response.NewResponse().
 				WithCode(http.StatusUnprocessableEntity).
 				WithStatus("Failed").
 				WithMessage("Failed")
 		succResponse = response.NewResponse().
 				WithStatus("Success").
-				WithMessage("Success")
+				WithMessage("Success Checkout")
+		bearer = r.Header.Get("Authorization")
 	)
 
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -28,23 +29,13 @@ func (c *_ControllerProduct) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := payload.Validate(); err != nil {
+	if err := c.service.ProductService.Checkout(bearer, &payload); err != nil {
 		response := *errResponse.WithError(err.Error())
 		output, _ := json.Marshal(response)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(output)
 		return
 	}
-
-	if err := c.service.ProductService.Create(&payload); err != nil {
-		response := *errResponse.WithError(err)
-		output, _ := json.Marshal(response)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(output)
-		return
-	}
-
-	payload.CartID = nil
 
 	response := *succResponse.WithData(payload)
 	object, err := json.Marshal(response)

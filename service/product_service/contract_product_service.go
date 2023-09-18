@@ -16,7 +16,8 @@ type Contract interface {
 	GetAll(m *meta.Metadata) ([]entities.Product, error)
 	AddToCart(payload entities.CartsPayload, bearer string) error
 	GetCart(bearer string) ([]entities.Product, error)
-	DeleteCart(bearer string, products_id []uuid.UUID) error
+	DeleteCart(bearer string, cart_id []uuid.UUID) error
+	Checkout(bearer string, payload *entities.CheckoutPayload) error
 }
 
 type _Service struct {

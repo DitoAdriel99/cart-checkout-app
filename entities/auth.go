@@ -23,7 +23,6 @@ type Register struct {
 	FullName  string     `json:"fullname"`
 	Email     string     `json:"email"`
 	Password  string     `json:"password"`
-	Balance   int        `json:"balance"`
 	Role      string     `json:"role"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`

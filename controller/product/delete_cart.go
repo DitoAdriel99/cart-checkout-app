@@ -29,7 +29,7 @@ func (c *_ControllerProduct) DeleteCart(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := c.service.ProductService.DeleteCart(bearer, payload.ProductsID); err != nil {
+	if err := c.service.ProductService.DeleteCart(bearer, payload.CartID); err != nil {
 		response := *errResponse.WithError(err.Error())
 		output, _ := json.Marshal(response)
 		w.WriteHeader(http.StatusBadRequest)

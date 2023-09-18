@@ -30,7 +30,6 @@ func (s *_Service) Register(payload *entities.RegisterPayload) (*entities.Regist
 		FullName:  payload.FullName,
 		Email:     payload.Email,
 		Password:  hashedPass,
-		Balance:   50000000,
 		Role:      "user",
 		CreatedAt: time,
 		UpdatedAt: &time,

@@ -260,6 +260,7 @@ func (c *_ProductRepoImp) AddToCart(payload entities.CartsPayload, email string)
 func (c *_ProductRepoImp) GetCart(email string) ([]entities.Product, error) {
 	query := `
 		SELECT 
+			p.id,
 			pi.id, 
 			pi.title, 
 			pi.description, 
@@ -278,7 +279,10 @@ func (c *_ProductRepoImp) GetCart(email string) ([]entities.Product, error) {
 		ON 
 			p.product_id = pi.id 
 		WHERE 
-			p.email = $1`
+			p.email = $1
+		AND
+			is_checkout IS false
+		`
 
 	rows, err := c.conn.Query(query, email)
 	if err != nil {
@@ -290,6 +294,7 @@ func (c *_ProductRepoImp) GetCart(email string) ([]entities.Product, error) {
 	for rows.Next() {
 		var f entities.Product
 		if err := rows.Scan(
+			&f.CartID,
 			&f.ID,
 			&f.Title,
 			&f.Description,
@@ -309,12 +314,114 @@ func (c *_ProductRepoImp) GetCart(email string) ([]entities.Product, error) {
 	}
 	return collections, nil
 }
-func (c *_ProductRepoImp) DeleteCart(email string, products_id []uuid.UUID) error {
-	for _, v := range products_id {
-		query := `DELETE FROM product_cart WHERE product_id = $1 and email = $2`
+
+func (c *_ProductRepoImp) GetCartDetail(cartID uuid.UUID) (*entities.Product, error) {
+	query := `
+		SELECT 
+			pi.id,
+			p.id, 
+			pi.title, 
+			pi.description, 
+			pi.price, 
+			pi.quantity,
+			pi.image, 
+			pi.type, 
+			pi.banner,
+			p.quantity,
+			pi.created_at, 
+			pi.updated_at 
+		FROM 
+			product_cart p 
+		JOIN 
+			products pi 
+		ON 
+			p.product_id = pi.id 
+		WHERE 
+			p.id = $1
+		AND
+			is_checkout IS false
+		`
+	var object entities.Product
+
+	err := c.conn.QueryRow(query, cartID).Scan(
+		&object.ID,
+		&object.CartID,
+		&object.Title,
+		&object.Description,
+		&object.Price,
+		&object.Qty,
+		&object.Image,
+		&object.Type,
+		&object.Banner,
+		&object.QtyReq,
+		&object.CreatedAt,
+		&object.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+	return &object, nil
+}
+
+func (c *_ProductRepoImp) DeleteCart(email string, cart_id []uuid.UUID) error {
+	for _, v := range cart_id {
+		query := `DELETE FROM product_cart WHERE id = $1 and email = $2`
 		_, err := c.conn.Exec(query, v, email)
 		if err != nil {
 			err = fmt.Errorf("executing query update: %w", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *_ProductRepoImp) Checkout(email string, payload []entities.CheckoutNeed) error {
+	tx, err := c.conn.Begin()
+	if err != nil {
+		return fmt.Errorf("starting transaction: %w", err)
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+	for _, v := range payload {
+		var newID, _ = uuid.NewUUID()
+		queryInsert := `INSERT INTO checkout_history (id, email, cart_id, quantity, quantity_request, price, total_price, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+		_, err := tx.Exec(queryInsert, newID, v.Email, v.CartID, v.Quantity, v.QuantityReq, v.Price, v.TotalPrice, v.CreatedAt, v.UpdatedAt)
+		if err != nil {
+			return err
+		}
+
+		queryUpdateCart := `
+		UPDATE product_cart 
+			SET 
+				is_checkout = $2, 
+				updated_at = $3
+			WHERE 
+				id = $1
+		`
+
+		_, err = tx.Exec(queryUpdateCart, v.CartID, true, time.Now().Local())
+		if err != nil {
+			return err
+		}
+
+		queryUpdateProduct := `
+		UPDATE products 
+			SET 
+				quantity = $2, 
+				updated_at = $3
+			WHERE 
+				id = $1
+		`
+		qtyNew := v.Quantity - v.QuantityReq
+		_, err = tx.Exec(queryUpdateProduct, v.ProductID, qtyNew, time.Now().Local())
+		if err != nil {
 			return err
 		}
 	}

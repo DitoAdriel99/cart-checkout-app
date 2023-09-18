@@ -14,9 +14,11 @@ const (
 
 type Product struct {
 	ID          uuid.UUID  `json:"id"`
+	CartID      *uuid.UUID `json:"cart_id,omitempty" db:"cart_id,omitempty"`
 	Title       string     `json:"title"`
 	Description string     `json:"description"`
 	Price       int        `json:"price"`
+	TotPrice    int        `json:"total_price,omitempty"`
 	Qty         int        `json:"quantity"`
 	QtyReq      int        `json:"quantity_request,omitempty"`
 	Rating      float64    `json:"rating"`
@@ -50,5 +52,22 @@ type CartPayload struct {
 }
 
 type CartDeletePayload struct {
-	ProductsID []uuid.UUID `json:"products_id"`
+	CartID []uuid.UUID `json:"cart_id"`
+}
+
+type CheckoutNeed struct {
+	ID          uuid.UUID `json:"id"`
+	Email       string    `json:"email"`
+	CartID      uuid.UUID `json:"cart_id"`
+	ProductID   uuid.UUID `json:"product_id"`
+	Quantity    int       `json:"quantity"`
+	QuantityReq int       `json:"quantity_request"`
+	Price       int       `json:"price"`
+	TotalPrice  int       `json:"total_price"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type CheckoutPayload struct {
+	CartsID []uuid.UUID `json:"cart_id"`
 }

@@ -18,7 +18,6 @@ func (c *_AuthRepoImp) Checklogin(auth *entities.Login) (*entities.User, error) 
 		&object.FullName,
 		&object.Email,
 		&object.Password,
-		&object.Balance,
 		&object.Role,
 		&object.CreatedAt,
 		&object.UpdatedAt,
@@ -46,7 +45,6 @@ func (c *_AuthRepoImp) ValidateUser(email string) (*entities.User, error) {
 		&object.FullName,
 		&object.Email,
 		&object.Password,
-		&object.Balance,
 		&object.Role,
 		&object.CreatedAt,
 		&object.UpdatedAt,
@@ -82,10 +80,10 @@ func (c *_AuthRepoImp) CheckEmail(email string) error {
 
 func (c *_AuthRepoImp) Register(rq *entities.Register) error {
 	queryInsert := `
-		INSERT INTO users (id, fullname, email, password, balance, role,created_at, updated_at, is_active)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9)
+		INSERT INTO users (id, fullname, email, password, role,created_at, updated_at, is_active)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
-	if _, err := c.conn.Exec(queryInsert, rq.ID, rq.FullName, rq.Email, rq.Password, rq.Balance, rq.Role, rq.CreatedAt, rq.UpdatedAt, true); err != nil {
+	if _, err := c.conn.Exec(queryInsert, rq.ID, rq.FullName, rq.Email, rq.Password, rq.Role, rq.CreatedAt, rq.UpdatedAt, true); err != nil {
 		err = fmt.Errorf("executing query: %w", err)
 		return err
 	}
@@ -119,7 +117,6 @@ func (c *_AuthRepoImp) ValidateUserId(id uuid.UUID) (*entities.User, error) {
 		&object.FullName,
 		&object.Email,
 		&object.Password,
-		&object.Balance,
 		&object.Role,
 		&object.CreatedAt,
 		&object.UpdatedAt,
