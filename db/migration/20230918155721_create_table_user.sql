@@ -6,15 +6,16 @@ CREATE TABLE IF NOT EXISTS users
     fullname    varchar     not null,
     email       varchar     not null,
     password    varchar     not null,
+    balance     int         not null default 0,
     role        varchar     not null,
     created_at  timestamp   not null,
     updated_at  timestamp,
     is_active   bool        not null default true
 );
-INSERT INTO users (id,fullname,email,password,role,created_at, updated_at, is_active)
-VALUES ('9f68d2a2-26da-11ee-be56-0242ac120002','Admin','admin@gmail.com','$2a$14$PqbFLLY0XZT2vgj9dafsv.uCCacUeYfiCv3zXWqR4C2dyoyXLj81K', 'admin','2023-09-01 14:42:29.977','2023-09-01 14:42:29.977', true),
-       ('62abe70e-293d-11ee-be56-0242ac120002','Akuntes1','akuntes1@gmail.com','$2a$14$PqbFLLY0XZT2vgj9dafsv.uCCacUeYfiCv3zXWqR4C2dyoyXLj81K','user','2023-09-01 14:42:29.977','2023-09-01 14:42:29.977', true),
-       ('62abec5e-293d-11ee-be56-0242ac120002','Akuntes2','akuntes2@gmail.com','$2a$14$PqbFLLY0XZT2vgj9dafsv.uCCacUeYfiCv3zXWqR4C2dyoyXLj81K','user','2023-09-01 14:42:29.977','2023-09-01 14:42:29.977', true) ON CONFLICT DO NOTHING;
+INSERT INTO users (id,fullname,email,password,balance,role,created_at, updated_at, is_active)
+VALUES ('9f68d2a2-26da-11ee-be56-0242ac120002','Admin','admin@gmail.com','$2a$14$PqbFLLY0XZT2vgj9dafsv.uCCacUeYfiCv3zXWqR4C2dyoyXLj81K', 1000,'admin','2023-09-01 14:42:29.977','2023-09-01 14:42:29.977', true),
+       ('62abe70e-293d-11ee-be56-0242ac120002','Akuntes1','akuntes1@gmail.com','$2a$14$PqbFLLY0XZT2vgj9dafsv.uCCacUeYfiCv3zXWqR4C2dyoyXLj81K',12000,'user','2023-09-01 14:42:29.977','2023-09-01 14:42:29.977', true),
+       ('62abec5e-293d-11ee-be56-0242ac120002','Akuntes2','akuntes2@gmail.com','$2a$14$PqbFLLY0XZT2vgj9dafsv.uCCacUeYfiCv3zXWqR4C2dyoyXLj81K',323232,'user','2023-09-01 14:42:29.977','2023-09-01 14:42:29.977', true) ON CONFLICT DO NOTHING;
 
 -- +goose StatementEnd
 
