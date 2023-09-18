@@ -29,6 +29,14 @@ func (c *_ControllerProduct) AddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := payload.Validate(); err != nil {
+		response := *errResponse.WithError(err)
+		output, _ := json.Marshal(response)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(output)
+		return
+	}
+
 	if err := c.service.ProductService.AddToCart(payload, bearer); err != nil {
 		response := *errResponse.WithError(err.Error())
 		output, _ := json.Marshal(response)

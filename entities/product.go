@@ -55,6 +55,12 @@ type CartDeletePayload struct {
 	CartID []uuid.UUID `json:"cart_id"`
 }
 
+func (cdp CartDeletePayload) Validate() error {
+	return validation.ValidateStruct(&cdp,
+		validation.Field(&cdp.CartID, validation.Required),
+	)
+}
+
 type CheckoutNeed struct {
 	ID          uuid.UUID `json:"id"`
 	Email       string    `json:"email"`
@@ -70,4 +76,26 @@ type CheckoutNeed struct {
 
 type CheckoutPayload struct {
 	CartsID []uuid.UUID `json:"cart_id"`
+}
+
+func (cdp CheckoutPayload) Validate() error {
+	return validation.ValidateStruct(&cdp,
+		validation.Field(&cdp.CartsID, validation.Required),
+	)
+}
+
+func (cp CartPayload) Validate() error {
+	return validation.ValidateStruct(&cp,
+		validation.Field(&cp.ProductsID, validation.Required),
+		validation.Field(&cp.Qty, validation.Required, validation.Min(1)),
+	)
+}
+
+func (cp CartsPayload) Validate() error {
+	for _, payload := range cp {
+		if err := payload.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
