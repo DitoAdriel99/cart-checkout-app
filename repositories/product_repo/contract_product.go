@@ -19,7 +19,9 @@ type ProductContract interface {
 	GetAll(m *meta.Metadata) ([]entities.Product, error)
 	Update(pr *entities.Product) error
 	Delete(id uuid.UUID) error
-	AddToCart(id []uuid.UUID) error
+	AddToCart(payload entities.CartsPayload, email string) error
+	GetCart(email string) ([]entities.Product, error)
+	DeleteCart(email string, products_id []uuid.UUID) error
 }
 
 func NewProductRepositories() ProductContract {

@@ -6,6 +6,7 @@ import (
 	"go-learn/entities"
 	"go-learn/library/meta"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -230,7 +231,93 @@ func (c *_ProductRepoImp) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (c *_ProductRepoImp) AddToCart(id []uuid.UUID) error {
+func (c *_ProductRepoImp) AddToCart(payload entities.CartsPayload, email string) error {
+	for _, v := range payload {
+		checkQuery := `SELECT COUNT(*) FROM product_cart WHERE email = $1 AND product_id = $2 AND is_checkout is false`
+		var count int
+		err := c.conn.QueryRow(checkQuery, email, v.ProductsID).Scan(&count)
+		if err != nil {
+			err = fmt.Errorf("executing query: %w", err)
+			return err
+		}
+
+		if count != 0 {
+			return entities.ErrAlreadyInCart
+		}
+
+		queryInsert := `INSERT INTO product_cart (id, email, product_id, quantity,status, is_checkout, created_at, updated_at)
+					VALUES($1,$2,$3,$4,$5,$6,$7,$8)`
+		newId, _ := uuid.NewUUID()
+		_, err = c.conn.Exec(queryInsert, newId, email, v.ProductsID, v.Qty, true, false, time.Now().Local(), time.Now().Local())
+		if err != nil {
+			err = fmt.Errorf("executing query insert: %w", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *_ProductRepoImp) GetCart(email string) ([]entities.Product, error) {
+	query := `
+		SELECT 
+			pi.id, 
+			pi.title, 
+			pi.description, 
+			pi.price, 
+			pi.quantity,
+			pi.image, 
+			pi.type, 
+			pi.banner,
+			p.quantity,
+			pi.created_at, 
+			pi.updated_at 
+		FROM 
+			product_cart p 
+		JOIN 
+			products pi 
+		ON 
+			p.product_id = pi.id 
+		WHERE 
+			p.email = $1`
+
+	rows, err := c.conn.Query(query, email)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	collections := make([]entities.Product, 0)
+	for rows.Next() {
+		var f entities.Product
+		if err := rows.Scan(
+			&f.ID,
+			&f.Title,
+			&f.Description,
+			&f.Price,
+			&f.Qty,
+			&f.Image,
+			&f.Type,
+			&f.Banner,
+			&f.QtyReq,
+			&f.CreatedAt,
+			&f.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		collections = append(collections, f)
+	}
+	return collections, nil
+}
+func (c *_ProductRepoImp) DeleteCart(email string, products_id []uuid.UUID) error {
+	for _, v := range products_id {
+		query := `DELETE FROM product_cart WHERE product_id = $1 and email = $2`
+		_, err := c.conn.Exec(query, v, email)
+		if err != nil {
+			err = fmt.Errorf("executing query update: %w", err)
+			return err
+		}
+	}
 	return nil
 }
 

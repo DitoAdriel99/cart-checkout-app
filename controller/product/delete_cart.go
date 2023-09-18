@@ -2,16 +2,15 @@ package product
 
 import (
 	"encoding/json"
+	"go-learn/entities"
 	"go-learn/library/response"
 	"net/http"
-
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 )
 
-func (c *_ControllerProduct) Detail(w http.ResponseWriter, r *http.Request) {
+func (c *_ControllerProduct) DeleteCart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var (
+		payload     entities.CartDeletePayload
 		errResponse = response.NewResponse().
 				WithCode(http.StatusUnprocessableEntity).
 				WithStatus("Failed").
@@ -19,26 +18,26 @@ func (c *_ControllerProduct) Detail(w http.ResponseWriter, r *http.Request) {
 		succResponse = response.NewResponse().
 				WithStatus("Success").
 				WithMessage("Success")
+		bearer = r.Header.Get("Authorization")
 	)
-	rawID := mux.Vars(r)["id"]
-	if rawID == ":id" {
-		response := *errResponse.WithError("ID cannot be empty!")
-		output, _ := json.Marshal(response)
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write(output)
-		return
-	}
-	id, _ := uuid.Parse(rawID)
-	data, err := c.service.ProductService.Detail(id)
-	if err != nil {
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		response := *errResponse.WithError(err.Error())
 		output, _ := json.Marshal(response)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(output)
 		return
 	}
-	response := *succResponse.WithData(data)
-	object, err := json.Marshal(response)
+
+	if err := c.service.ProductService.DeleteCart(bearer, payload.ProductsID); err != nil {
+		response := *errResponse.WithError(err.Error())
+		output, _ := json.Marshal(response)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(output)
+		return
+	}
+
+	object, err := json.Marshal(succResponse)
 	if err != nil {
 		response := *errResponse.WithError(err)
 		output, _ := json.Marshal(response)

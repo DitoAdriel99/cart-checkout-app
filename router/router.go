@@ -47,5 +47,9 @@ func New() http.Handler {
 	userRoutes.HandleFunc("/product", controllerProduct.Get).Methods("GET")
 	userRoutes.HandleFunc("/product/{id}", controllerProduct.Detail).Methods("GET")
 
+	userRoutes.HandleFunc("/cart/items", controllerProduct.AddToCart).Methods("POST")
+	userRoutes.HandleFunc("/cart/items", controllerProduct.GetCart).Methods("GET")
+	userRoutes.HandleFunc("/cart/items", controllerProduct.DeleteCart).Methods("DELETE")
+
 	return router
 }
