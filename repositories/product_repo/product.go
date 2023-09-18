@@ -266,10 +266,10 @@ func (c *_ProductRepoImp) GetCart(email string) ([]entities.Product, error) {
 			pi.description, 
 			pi.price, 
 			pi.quantity,
+			p.quantity,
 			pi.image, 
 			pi.type, 
 			pi.banner,
-			p.quantity,
 			pi.created_at, 
 			pi.updated_at 
 		FROM 
@@ -300,10 +300,10 @@ func (c *_ProductRepoImp) GetCart(email string) ([]entities.Product, error) {
 			&f.Description,
 			&f.Price,
 			&f.Qty,
+			&f.QtyReq,
 			&f.Image,
 			&f.Type,
 			&f.Banner,
-			&f.QtyReq,
 			&f.CreatedAt,
 			&f.UpdatedAt,
 		); err != nil {
