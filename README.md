@@ -23,6 +23,10 @@ The project follows a clean architecture pattern, separating concerns into diffe
 - **Database Layer**: Connects to the database.
 
 ## Quick Start
+### Entity Relationship Diagram
+```bash
+https://drive.google.com/file/d/1tHaDJtXXdBZoo62laOg52CCX1ECG6l_h/view?usp=sharing
+```
 ### API Documentation
 #### Login
 ```bash
@@ -132,12 +136,14 @@ curl --location --request POST 'localhost:3030/cart/items/checkout' \
 #### 2. Run the application
 ```bash
 # run command :
-git clone https://Dito_Adriel@bitbucket.org/Bhenedicto_Adriel/dito-rgb-golang-test.git
+git clone https://github.com/DitoAdriel99/software-engineer-challenge
 
 # install dependency
 go mod tidy
 
 # setup env
+ENV=
+
 DB_DRIVER=postgres
 DB_USERNAME=        #change to your db username
 DB_PASSWORD=        #change to your db password

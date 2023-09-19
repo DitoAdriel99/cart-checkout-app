@@ -27,6 +27,7 @@ func New() http.Handler {
 	tokenValidator := middleware.NewTokenValidator(*repo)
 
 	//login
+	router.HandleFunc("/health", controllerLogin.Health).Methods("GET")
 	router.HandleFunc("/login", controllerLogin.HandleLogin).Methods("POST")
 	router.HandleFunc("/register", controllerRegister.HandleRegister).Methods("POST")
 	router.HandleFunc("/update-status", controllerStatus.Status).Methods("PUT")
