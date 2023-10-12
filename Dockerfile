@@ -13,10 +13,19 @@ FROM alpine:latest
 
 WORKDIR /app
 
+# Install necessary packages including Go
+RUN apk update && apk add --no-cache ca-certificates && apk add --no-cache bash
+
 # Copy the compiled Go application from the builder stage
 COPY --from=builder /app/db/migration /app/db/migration
 COPY --from=builder /app/app /app/app
+COPY wait-for-it.sh /app/wait-for-it.sh
+COPY startup.sh /app/startup.sh
+
+# Make scripts executable
+RUN chmod +x /app/wait-for-it.sh
+RUN chmod +x /app/startup.sh
 
 EXPOSE $PORT
 
-CMD ["./app"]
+CMD ["./startup.sh"]  # Use startup.sh as the entry point
