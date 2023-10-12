@@ -26,4 +26,4 @@ services:
       - KEY=ditoadriel1234567890
       - EXPIRED=2
     ports:
-      - 3000:3000
+      - 9999:9999
