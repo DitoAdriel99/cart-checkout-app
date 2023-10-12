@@ -22,7 +22,7 @@ services:
       - DB_DATABASE=se-challenge
       - DB_HOST=database
       - DB_PORT=5432
-      - PORT=3000
+      - PORT=9999
       - KEY=ditoadriel1234567890
       - EXPIRED=2
     ports:
